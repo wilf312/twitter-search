@@ -1,0 +1,6 @@
+{
+    "name": "root/wilf.jp",
+    "require": {
+        "mpyw/cowitter": "^1.0"
+    }
+}
