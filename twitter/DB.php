@@ -91,13 +91,13 @@ NOW()
 SQL2;
 
         $prepare = $this->instance->prepare($sql);
-        $prepare->bindParam(':id', $user['id'], PDO::PARAM_INT);
-        $prepare->bindParam(':user_id', $user['user']['user_id'], PDO::PARAM_INT);
-        $prepare->bindParam(':retweet_count', $user['retweet_count'], PDO::PARAM_INT);
-        $prepare->bindParam(':favorite_count', $user['favorite_count'], PDO::PARAM_INT);
-        $prepare->bindParam(':text', $user['text']);
-        $prepare->bindParam(':media', $user['media']);
-        $prepare->bindParam(':created_at', $user['created_at']);
+        $prepare->bindParam(':id', $tweet['id'], PDO::PARAM_INT);
+        $prepare->bindParam(':user_id', $tweet['user']['user_id'], PDO::PARAM_INT);
+        $prepare->bindParam(':retweet_count', $tweet['retweet_count'], PDO::PARAM_INT);
+        $prepare->bindParam(':favorite_count', $tweet['favorite_count'], PDO::PARAM_INT);
+        $prepare->bindParam(':text', $tweet['text']);
+        $prepare->bindParam(':media', $tweet['media']);
+        $prepare->bindParam(':created_at', $tweet['created_at']);
         $prepare->execute();
     }
 
