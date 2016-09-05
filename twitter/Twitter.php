@@ -125,6 +125,8 @@ Class Twitter {
 
         } catch (PDOException $e) {
             $error = $e->getMessage();
+
+            error_log($error);
         }
     }
 
