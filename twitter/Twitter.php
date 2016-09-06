@@ -115,9 +115,6 @@ Class Twitter {
         try {
 
             foreach($this->formattedList as $key => $val){
-                if ($key === 0) {
-                    var_dump($val);
-                }
 
                 // ツイート内容の登録
                 $db->registerTweet($val);
