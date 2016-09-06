@@ -25,7 +25,9 @@ Class Twitter {
     * @param string $arg 第1引数
     * @return array 戻り値
     */
-    public function __construct() {
+    public function __construct($lang) {
+        $this->lang = ($lang ? $lang : '');
+
         $this->client = new Client([CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET]);
     }
 
@@ -36,6 +38,10 @@ Class Twitter {
             'q' => $this->q,
             'count' => $this->SEARCH_NUM,
         ];
+
+        if ($this->lang !== '') {
+            $params['lang'] = $this->lang;
+        }
 
         for ($i = 0; $i < $this->LIMIT_NUM; $i++) {
 
