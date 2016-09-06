@@ -64,7 +64,8 @@ VALUES (:user_id,
 :followers_count,
 :friends_count,
 :listed_count,
-:created_at, NOW());
+:created_at,
+:updated_at);
 SQL;
 
         $prepare = $this->instance->prepare($sql);
@@ -79,6 +80,7 @@ SQL;
         $prepare->bindValue(':friends_count', $user['friends_count'], PDO::PARAM_INT);
         $prepare->bindValue(':listed_count', $user['listed_count'], PDO::PARAM_INT);
         $prepare->bindValue(':created_at', $user['created_at']);
+        $prepare->bindValue(':updated_at', (new DateTime())->format('Y-m-d H:i:s'));
 
         $prepare->execute();
     }
@@ -98,7 +100,7 @@ INSERT INTO `t_tweet`(`id`, `user_id`, `text`, `retweet_count`, `favorite_count`
 :favorite_count,
 :media,
 :created_at,
-NOW()
+:updated_at
 );
 SQL2;
 
@@ -110,6 +112,7 @@ SQL2;
         $prepare->bindValue(':text', $tweet['text']);
         $prepare->bindValue(':media', $tweet['media']);
         $prepare->bindValue(':created_at', $tweet['created_at']);
+        $prepare->bindValue(':updated_at', (new DateTime())->format('Y-m-d H:i:s'));
         $prepare->execute();
     }
 
