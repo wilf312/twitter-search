@@ -2,6 +2,7 @@
 
 
 $search = isset($_GET['q']) && trim($_GET['q']) !== '' ? trim($_GET['q']) : '#深夜の真剣お絵描き60分一本勝負';
+$isDistinct = isset($_GET['distinct']) && trim($_GET['distinct']) === 'on' ? true : false;
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -17,7 +18,15 @@ if (!$db->instance) {
 try {
 
     // ツイートユーザの登録
-    $data = $db->queryWord($search);
+    if ($isDistinct) {
+        $data = $db->queryWordDistinct($search);
+    }
+    else {
+        $data = $db->queryWord($search);
+    }
+
+
+
 
 
 } catch (PDOException $e) {
