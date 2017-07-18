@@ -19,15 +19,101 @@ Class DB {
             DB_USER,
             DB_PASSWORD
         );
-
+        // エラー設定
+        $this->instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // DBの型に合わせてオブジェクトを生成する
+        $this->instance->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
 
     /**
-    * twitterユーザの登録
+    * 除外ワードの取得
+    */
+    public function queryFilterWord() {
+
+        $prepare = $this->instance->prepare("SELECT * FROM m_filter_word");
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+    /**
+    * 除外ユーザの追加
+    */
+    public function addFilterWord($word) {
+
+        $prepare = $this->instance->prepare("INSERT INTO `m_filter_word` (`word`, `status`) VALUES (:word, '1');");
+        $prepare->bindValue(':word', $word, PDO::PARAM_STR);
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+    /**
+    * 除外ユーザの取得
+    */
+    public function queryFilterUser() {
+
+        $prepare = $this->instance->prepare("SELECT * FROM m_filter_user INNER JOIN mt_user ON m_filter_user.user_id = mt_user.user_id");
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+    /**
+    * 除外ユーザの追加
+    */
+    public function addFilterUser($user_id) {
+
+        $prepare = $this->instance->prepare("INSERT INTO `m_filter_user` (`id`, `user_id`, `status`) VALUES (NULL, :user_id, 1);");
+        $prepare->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+    /**
+    * 除外ユーザの除外ステータスを更新
+    * 1: 除外対象 0: 除外ユーザーではない
+    */
+    public function updateFilterUser($user_id, $status) {
+
+        $prepare = $this->instance->prepare("UPDATE `m_filter_user` SET `status` = :status WHERE `m_filter_user`.`id` = :user_id;");
+        $prepare->bindValue(':user_id', "{$user_id}", PDO::PARAM_INT);
+        $prepare->bindValue(':status', "{$status}", PDO::PARAM_INT);
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+    /**
+    * 除外ワードの除外ステータスを更新
+    * 1: 除外対象 0: 除外ワードーではない
+    */
+    public function updateFilterWord($word, $status) {
+
+        $prepare = $this->instance->prepare("UPDATE `m_filter_word` SET `status` = :status WHERE `m_filter_word`.`id` = :word;");
+        $prepare->bindValue(':word', "{$word}", PDO::PARAM_INT);
+        $prepare->bindValue(':status', "{$status}", PDO::PARAM_INT);
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+
+    /**
+    * 検索
     */
     public function queryWord($word) {
 
-        $prepare = $this->instance->prepare("SELECT * FROM `t_tweet` WHERE `text` LIKE :word ORDER BY `t_tweet`.`retweet_count` DESC");
+        $prepare = $this->instance->prepare("SELECT t_tweet.text, t_tweet.id, t_tweet.user_id, t_tweet.created_at, t_tweet.retweet_count, t_tweet.favorite_count, t_tweet.media, mt_user.name, mt_user.screen_name, mt_user.profile_image_url, mt_user.followers_count, mt_user.friends_count FROM `t_tweet` INNER JOIN mt_user ON t_tweet.user_id = mt_user.user_id WHERE `text` LIKE :word ORDER BY `id` DESC LIMIT 100");
+        $prepare->bindValue(':word', "%{$word}%", PDO::PARAM_STR);
+
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+
+    /**
+    * 検索
+    * 画像のユニークの値を取る
+    *
+    */
+    public function queryWordDistinct($word) {
+
+        $prepare = $this->instance->prepare("SELECT DISTINCT (t_tweet.media), t_tweet.text, t_tweet.id, t_tweet.user_id, t_tweet.created_at, t_tweet.retweet_count, t_tweet.favorite_count, mt_user.name, mt_user.screen_name, mt_user.profile_image_url, mt_user.followers_count, mt_user.friends_count FROM `t_tweet` INNER JOIN mt_user ON t_tweet.user_id = mt_user.user_id WHERE `text` LIKE :word ORDER BY `id` DESC LIMIT 500");
         $prepare->bindValue(':word', "%{$word}%", PDO::PARAM_STR);
 
         $prepare->execute();
@@ -41,7 +127,7 @@ Class DB {
 
         $sql = '';
         $sql = <<<SQL
-INSERT INTO `mt_user`
+INSERT IGNORE INTO `mt_user`
 (`user_id`,
 `name`,
 `screen_name`,
@@ -53,7 +139,7 @@ INSERT INTO `mt_user`
 `friends_count`,
 `listed_count`,
 `created_at`,
-`update_at`)
+`updated_at`)
 VALUES (:user_id,
 :name,
 :screen_name,
@@ -92,7 +178,7 @@ SQL;
 
         $sql = '';
         $sql = <<<SQL2
-INSERT INTO `t_tweet`(`id`, `user_id`, `text`, `retweet_count`, `favorite_count`, `media`, `created_at`, `update_at`) VALUES (
+INSERT IGNORE INTO `t_tweet`(`id`, `user_id`, `text`, `retweet_count`, `favorite_count`, `media`, `created_at`, `updated_at`) VALUES (
 :id,
 :user_id,
 :text,

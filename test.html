@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title></title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<!-- コメントアニメーション -->
+
+<h1>コメントアニメーション</h1>
+<p>テキスト</p>
+
+
+<script>
+
+(function() {
+    // ------  bodyの一番初めのコメント要素を取得
+    var nodes = document.querySelector('body').childNodes;
+    var contents = Array.prototype.slice.call(nodes);
+    var $target = contents.filter(function(node) {
+      return node.nodeType === 8;
+    })[0];
+    console.log($target);
+
+    // テキストの取得
+    var commentText = $target.data.trim();
+    var commentLen = commentText.length;
+    console.log(commentText[0], commentText[1], commentText[2]);
+    console.log(commentLen);
+
+    var text = '';
+    var cnt = 0;
+    var SPEED = 300;
+    var SPEED_RETRY = 2000;
+
+
+    var commentAnimation = function() {
+
+        var timerID = setInterval(function() {
+
+            if (cnt >= commentLen) {
+                clearInterval(timerID);
+                cnt = 0;
+                text = '';
+
+                // リトライ
+                setTimeout(function() {
+                    $target.data = '  ';
+                    commentAnimation();
+                }, SPEED_RETRY);
+                return;
+            }
+
+            text = text + commentText[cnt];
+
+            $target.data = ' '+ text +' ';
+
+            cnt++;
+        }, SPEED);
+
+    };
+    commentAnimation();
+
+
+
+
+})();
+
+</script>
+</body>
+</html>

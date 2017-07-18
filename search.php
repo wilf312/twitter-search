@@ -2,6 +2,7 @@
 
 
 $search = isset($_GET['q']) && trim($_GET['q']) !== '' ? trim($_GET['q']) : '#深夜の真剣お絵描き60分一本勝負';
+$isDistinct = isset($_GET['distinct']) && trim($_GET['distinct']) === 'on' ? true : false;
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -15,9 +16,35 @@ if (!$db->instance) {
 
 
 try {
-
     // ツイートユーザの登録
-    $data = $db->queryWord($search);
+    if ($isDistinct) {
+        $tweetList = $db->queryWordDistinct($search);
+    }
+    else {
+        $tweetList = $db->queryWord($search);
+    }
+
+    // 除外ユーザの取得
+
+    $filterUser = $db->queryFilterUser();
+
+
+    $output = [];
+    foreach($tweetList as $key => $tweet) {
+        $filtered = false;
+
+        foreach($filterUser as $key => $user) {
+            if ($user['status'] === 1 &&
+                $tweet['user_id'] === $user['user_id']) {
+                $filtered = true;
+                break;
+            }
+        }
+
+        if (!$filtered) {
+            array_push($output, $tweet);
+        }
+    }
 
 
 } catch (PDOException $e) {
@@ -30,6 +57,6 @@ try {
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=utf-8");
 
-echo json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+echo json_encode($output, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 exit;

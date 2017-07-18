@@ -1,0 +1,4 @@
+<?
+
+$test = '#';
+echo urlencode( $test );

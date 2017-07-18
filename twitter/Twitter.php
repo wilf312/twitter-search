@@ -15,6 +15,7 @@ Class Twitter {
     private $client;
     private $SEARCH_NUM = 100;
     private $LIMIT_NUM = 5;
+    private $q = '';
     private $tweetList = [];
     public $formattedList = [];
 
@@ -24,17 +25,23 @@ Class Twitter {
     * @param string $arg 第1引数
     * @return array 戻り値
     */
-    public function __construct() {
+    public function __construct($lang) {
+        $this->lang = ($lang ? $lang : '');
+
         $this->client = new Client([CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET]);
     }
 
     public function fetchSearch($wordSearch) {
 
+        $this->q = urlencode($wordSearch);
         $params = [
-            'q' => $wordSearch,
+            'q' => $this->q,
             'count' => $this->SEARCH_NUM,
         ];
 
+        if ($this->lang !== '') {
+            $params['lang'] = $this->lang;
+        }
 
         for ($i = 0; $i < $this->LIMIT_NUM; $i++) {
 
@@ -88,7 +95,7 @@ Class Twitter {
                     'screen_name' => $val->user->screen_name,
                     'location' => $val->user->location,
                     'description' => $val->user->description,
-                    'url' => $val->user->url,
+                    'url' => ($val->user->url ? $val->user->url : ''),
                     'created_at' => (new DateTime())->setTimestamp(strtotime($val->user->created_at))->format('Y-m-d H:i:s'),
                     'profile_image_url_https' => $val->user->profile_image_url_https,
                     'followers_count' => $val->user->followers_count,
@@ -111,16 +118,15 @@ Class Twitter {
             exit('DBの接続失敗');
         }
 
-
         try {
 
             foreach($this->formattedList as $key => $val){
 
-                // ツイートユーザの登録
-                $db->registerTwitterUser($val['user']);
-
                 // ツイート内容の登録
                 $db->registerTweet($val);
+
+                // ツイートユーザの登録
+                $db->registerTwitterUser($val['user']);
             }
 
         } catch (PDOException $e) {
