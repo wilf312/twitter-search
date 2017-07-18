@@ -46,7 +46,7 @@ Class DB {
         $prepare->execute();
         return $prepare->fetchAll();
     }
-    /**
+    /*
     * 除外ユーザの取得
     */
     public function queryFilterUser() {
