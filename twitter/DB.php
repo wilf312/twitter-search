@@ -55,11 +55,7 @@ Class DB {
     */
     public function getMedia($word) {
 
-        $prepare = $this->instance->prepare(<<< QEND
-SELECT `media`
-FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE '%:word%') AS q
-GROUP BY `media`
-QEND;);
+        $prepare = $this->instance->prepare('SELECT `media` FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE '%:word%') AS q GROUP BY `media`');
 
         $prepare->bindValue(':word', $word, PDO::PARAM_STR);
         $prepare->execute();
