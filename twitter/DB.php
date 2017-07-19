@@ -46,6 +46,26 @@ Class DB {
         $prepare->execute();
         return $prepare->fetchAll();
     }
+
+
+
+
+    /*
+    * 画像、動画情報を取得
+    */
+    public function getMedia($word) {
+
+        $prepare = $this->instance->prepare(<<< QEND
+SELECT `media`
+FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE '%:word%') AS q
+GROUP BY `media`
+QEND;);
+
+        $prepare->bindValue(':word', $word, PDO::PARAM_STR);
+        $prepare->execute();
+        return $prepare->fetchAll();
+    }
+
     /*
     * 除外ユーザの取得
     */
