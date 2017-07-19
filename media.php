@@ -14,9 +14,7 @@ if (!$db->instance) {
 
 
 try {
-
     $tweetList = $db->getMedia($search);
-
 
 } catch (PDOException $e) {
     $error = $e->getMessage();

@@ -55,9 +55,10 @@ Class DB {
     */
     public function getMedia($word) {
 
-        $prepare = $this->instance->prepare('SELECT `media` FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE '%:word%') AS q GROUP BY `media`');
+        // $prepare = $this->instance->prepare("SELECT `media` FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE '%水遊び%') AS q GROUP BY `media`");
+        $prepare = $this->instance->prepare("SELECT `media` FROM (SELECT * FROM `t_tweet` WHERE `media` != '' && `text` LIKE :word) AS q GROUP BY `media`");
 
-        $prepare->bindValue(':word', $word, PDO::PARAM_STR);
+        $prepare->bindValue(':word', '%'. $word. '%', PDO::PARAM_STR);
         $prepare->execute();
         return $prepare->fetchAll();
     }
